@@ -37,6 +37,7 @@ public class Vehicule {
     @Column(name = "modele", nullable = true)
     private String modele;
 
+
     @Column(name = "est_dans_garage", nullable = true)
     private boolean estDansGarage;
 

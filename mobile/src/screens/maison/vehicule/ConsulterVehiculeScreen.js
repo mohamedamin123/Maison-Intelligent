@@ -6,24 +6,30 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  TextInput,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { getVehicule } from '../../../services/VehiculeService';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { getVehicule, updateVehicule } from '../../../services/VehiculeService';
 
 const ConsulterVehiculeScreen = () => {
   const route = useRoute();
-  const navigation = useNavigation();
   const { idVehicule } = route.params;
+  const navigation = useNavigation();
 
   const [vehicule, setVehicule] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     const fetchVehicule = async () => {
       try {
         const response = await getVehicule(idVehicule);
         setVehicule(response.data);
+        setFormData(response.data);
       } catch (error) {
         console.error("Erreur lors de la récupération du véhicule :", error);
       } finally {
@@ -33,6 +39,25 @@ const ConsulterVehiculeScreen = () => {
 
     fetchVehicule();
   }, [idVehicule]);
+
+  const handleChange = (key, value) => {
+    setFormData({ ...formData, [key]: value });
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateVehicule(idVehicule, formData);
+      Alert.alert("Succès", "Véhicule mis à jour avec succès !", [
+        { text: 'OK', onPress: () => navigation.navigate('ListeVehicule') },
+      ]);
+      setVehicule(formData);
+      setIsEditing(false);
+      
+    } catch (error) {
+      Alert.alert("Erreur", "Échec de la mise à jour du véhicule.");
+      console.error(error);
+    }
+  };
 
   if (loading) {
     return (
@@ -57,33 +82,32 @@ const ConsulterVehiculeScreen = () => {
       <View style={styles.card}>
         <Icon name="car-info" size={60} color="#00ADB5" style={styles.icon} />
 
-        <Text style={styles.label}>Matricule :</Text>
-        <Text style={styles.value}>{vehicule.matricule}</Text>
+        {[
+          { label: 'Matricule', key: 'matricule' },
+          { label: 'Marque', key: 'marque' },
+          { label: 'Modèle', key: 'modele' },
 
-        <Text style={styles.label}>Marque :</Text>
-        <Text style={styles.value}>{vehicule.marque}</Text>
+        ].map(({ label, key }) => (
+          <View key={key} style={styles.inputGroup}>
+            <Text style={styles.label}>{label} :</Text>
+            <TextInput
+              style={styles.input}
+              editable={isEditing}
+              value={formData[key]?.toString()}
+              onChangeText={(text) => handleChange(key, text)}
+              keyboardType={key === 'annee' || key === 'kilometrage' ? 'numeric' : 'default'}
+              placeholder={`Entrez ${label.toLowerCase()}`}
+              placeholderTextColor="#666"
+            />
+          </View>
+        ))}
 
-        <Text style={styles.label}>Modèle :</Text>
-        <Text style={styles.value}>{vehicule.modele}</Text>
-
-        <Text style={styles.label}>Année :</Text>
-        <Text style={styles.value}>{vehicule.annee}</Text>
-
-        <Text style={styles.label}>Kilométrage :</Text>
-        <Text style={styles.value}>{vehicule.kilometrage} km</Text>
-
-        <Text style={styles.label}>Type :</Text>
-        <Text style={styles.value}>{vehicule.type}</Text>
-
-        {/* Si tu veux ajouter un bouton modifier */}
         <TouchableOpacity
-          style={styles.modifyButton}
-          onPress={() =>
-            navigation.navigate('ModifierVehicule', { idVehicule: vehicule.idVehicule })
-          }
+          style={[styles.button, { backgroundColor: isEditing ? '#4CAF50' : '#00ADB5' }]}
+          onPress={isEditing ? handleSave : () => setIsEditing(true)}
         >
-          <Icon name="pencil" size={18} color="#fff" />
-          <Text style={styles.modifyText}>Modifier</Text>
+          <Icon name={isEditing ? 'content-save' : 'pencil'} size={18} color="#fff" />
+          <Text style={styles.buttonText}>{isEditing ? 'Enregistrer' : 'Modifier'}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -114,15 +138,33 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 20,
   },
+  inputGroup: {
+    marginBottom: 12,
+  },
   label: {
     fontSize: 14,
     color: '#aaa',
-    marginTop: 10,
+    marginBottom: 4,
   },
-  value: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  input: {
+    backgroundColor: '#2a2a2a',
     color: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    fontSize: 16,
+  },
+  button: {
+    flexDirection: 'row',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontWeight: 'bold',
   },
   loaderContainer: {
     flex: 1,
@@ -138,20 +180,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#ff6b6b',
     fontSize: 18,
-  },
-  modifyButton: {
-    flexDirection: 'row',
-    backgroundColor: '#00ADB5',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modifyText: {
-    color: '#fff',
-    marginLeft: 8,
-    fontWeight: 'bold',
   },
 });
 
