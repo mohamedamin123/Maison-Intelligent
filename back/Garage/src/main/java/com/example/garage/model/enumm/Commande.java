@@ -1,6 +1,6 @@
 package com.example.garage.model.enumm;
 
-public enum CommandeGarage {
+public enum Commande {
     OUVRIR,
     FERMER
 }

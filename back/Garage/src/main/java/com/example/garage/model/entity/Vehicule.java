@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,13 +29,16 @@ public class Vehicule {
 
     @NotBlank(message = "Le matricule est obligatoire")
     @Column(name = "matricule", nullable = false)
-    private EtatGarage matricule;
+    private String matricule;
 
     @Column(name = "marque", nullable = true)
     private String marque;
 
     @Column(name = "modele", nullable = true)
     private String modele;
+
+    @Column(name = "est_dans_garage", nullable = true)
+    private boolean estDansGarage;
 
 
 
@@ -48,7 +52,9 @@ public class Vehicule {
     @JsonIgnore
     private LocalDateTime updatedAt;
 
-
+    @Column(name = "id_user")
+    @NotNull
+    private Integer idUser;
 
     @Column(name = "id_garage")
     private Integer idGarage;
@@ -58,8 +64,32 @@ public class Vehicule {
     @JoinColumn(name = "id_garage", insertable = false, updatable = false)
     private Garage garage;
 
-    public Vehicule(EtatGarage matricule) {
+
+
+    @JsonBackReference("vehicule_user")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user", insertable = false, updatable = false)
+    private User user;
+
+
+    public Vehicule(String matricule) {
         this.matricule = matricule;
+    }
+
+    public Integer getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(Integer idUser) {
+        this.idUser = idUser;
+    }
+
+    public boolean isEstDansGarage() {
+        return estDansGarage;
+    }
+
+    public void setEstDansGarage(boolean estDansGarage) {
+        this.estDansGarage = estDansGarage;
     }
 
     public Integer getIdVehicule() {
@@ -70,11 +100,11 @@ public class Vehicule {
         this.idVehicule = idVehicule;
     }
 
-    public EtatGarage getMatricule() {
+    public String getMatricule() {
         return matricule;
     }
 
-    public void setMatricule(EtatGarage matricule) {
+    public void setMatricule(String matricule) {
         this.matricule = matricule;
     }
 

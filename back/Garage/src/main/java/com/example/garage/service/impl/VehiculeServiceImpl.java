@@ -57,6 +57,16 @@ public class VehiculeServiceImpl implements VehiculeService {
     }
 
     @Override
+    public List<VehiculeResDTO> findAllByIdGarage(Integer idGarage) {
+        List<Vehicule> users = this.repository.findAllByIdGarage(idGarage);
+        return mapper.toAllResDTO(users);    }
+
+    @Override
+    public List<VehiculeResDTO> findAllByIdUser(Integer idUser) {
+        List<Vehicule> users = this.repository.findAllByIdUser(idUser);
+        return mapper.toAllResDTO(users);    }
+
+    @Override
     public Optional<VehiculeResDTO> findById(Integer id) {
         Optional<Vehicule> optional = this.repository.findById(id);
         if (optional.isPresent()) {

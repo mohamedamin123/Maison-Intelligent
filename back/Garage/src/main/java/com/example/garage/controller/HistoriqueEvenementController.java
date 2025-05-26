@@ -28,6 +28,10 @@ public class HistoriqueEvenementController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<HistoriqueEvenementResDTO>> findAllByIdUser(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.findAllByIdUser(id));
+    }
     @GetMapping("/{id}")
     public ResponseEntity<HistoriqueEvenementResDTO> findById(@PathVariable Integer id) {
         return service.findById(id)

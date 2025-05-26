@@ -1,9 +1,9 @@
 package com.example.garage.model.entity;
 
-import com.example.garage.model.enumm.CommandeGarage;
-import com.example.garage.model.enumm.EtatGarage;
+import com.example.garage.model.enumm.Commande;
+import com.example.garage.model.enumm.Element;
+import com.example.garage.model.enumm.TypePiece;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -25,9 +25,14 @@ public class HistoriqueEvenement {
     @Column()
     private Integer idHistorique;
 
-    @NotBlank(message = "Le action est obligatoire")
     @Column(name = "action", nullable = false)
-    private CommandeGarage action;
+    private Commande action;
+
+    @Column(name = "type", nullable = false)
+    private TypePiece type;
+
+    @Column(name = "element", nullable = false)
+    private Element element;
 
     @Column(name = "date_action")
     @UpdateTimestamp
@@ -50,11 +55,27 @@ public class HistoriqueEvenement {
         this.idHistorique = idHistorique;
     }
 
-    public CommandeGarage getAction() {
+    public Element getElement() {
+        return element;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
+
+    public TypePiece getType() {
+        return type;
+    }
+
+    public void setType(TypePiece type) {
+        this.type = type;
+    }
+
+    public Commande getAction() {
         return action;
     }
 
-    public void setAction(CommandeGarage action) {
+    public void setAction(Commande action) {
         this.action = action;
     }
 

@@ -28,6 +28,15 @@ public class VehiculeController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("garage/{id}")
+    public ResponseEntity<List<VehiculeResDTO>> findAllByIdGarage( @PathVariable Integer id) {
+        return ResponseEntity.ok(service.findAllByIdGarage(id));
+    }
+
+    @GetMapping("user/{id}")
+    public ResponseEntity<List<VehiculeResDTO>> findAllByIdUser( @PathVariable Integer id) {
+        return ResponseEntity.ok(service.findAllByIdUser(id));
+    }
     @GetMapping("/{id}")
     public ResponseEntity<VehiculeResDTO> findById(@PathVariable Integer id) {
         return service.findById(id)

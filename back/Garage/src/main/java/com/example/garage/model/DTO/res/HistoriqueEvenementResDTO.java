@@ -1,6 +1,8 @@
 package com.example.garage.model.DTO.res;
 
-import com.example.garage.model.enumm.CommandeGarage;
+import com.example.garage.model.enumm.Commande;
+import com.example.garage.model.enumm.Element;
+import com.example.garage.model.enumm.TypePiece;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,19 +20,38 @@ public class HistoriqueEvenementResDTO {
 
 
 
-    private CommandeGarage action;
+    private Commande action;
+
+    private TypePiece type;
+
 
     @UpdateTimestamp
     private LocalDateTime dateAction;
+    private Element element;
 
     private Integer idUser;
 
+    public Element getElement() {
+        return element;
+    }
 
-    public CommandeGarage getAction() {
+    public void setElement(Element element) {
+        this.element = element;
+    }
+
+    public TypePiece getType() {
+        return type;
+    }
+
+    public void setType(TypePiece type) {
+        this.type = type;
+    }
+
+    public Commande getAction() {
         return action;
     }
 
-    public void setAction(CommandeGarage action) {
+    public void setAction(Commande action) {
         this.action = action;
     }
 

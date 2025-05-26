@@ -22,16 +22,37 @@ public class VehiculeReqDTO {
 
     private Integer idVehicule;
 
-    private EtatGarage matricule;
+    private String matricule;
 
     private String marque;
 
     private String modele;
+
+    private boolean estDansGarage;
+
+
     private Integer idGarage;
+    private Integer idUser;
 
 
-    public VehiculeReqDTO(EtatGarage matricule) {
+    public VehiculeReqDTO(String matricule) {
         this.matricule = matricule;
+    }
+
+    public Integer getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(Integer idUser) {
+        this.idUser = idUser;
+    }
+
+    public boolean isEstDansGarage() {
+        return estDansGarage;
+    }
+
+    public void setEstDansGarage(boolean estDansGarage) {
+        this.estDansGarage = estDansGarage;
     }
 
     public Integer getIdVehicule() {
@@ -42,11 +63,11 @@ public class VehiculeReqDTO {
         this.idVehicule = idVehicule;
     }
 
-    public EtatGarage getMatricule() {
+    public String getMatricule() {
         return matricule;
     }
 
-    public void setMatricule(EtatGarage matricule) {
+    public void setMatricule(String matricule) {
         this.matricule = matricule;
     }
 

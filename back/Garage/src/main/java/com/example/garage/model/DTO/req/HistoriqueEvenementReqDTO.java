@@ -1,9 +1,8 @@
 package com.example.garage.model.DTO.req;
 
-import com.example.garage.model.enumm.CommandeGarage;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import com.example.garage.model.enumm.Commande;
+import com.example.garage.model.enumm.Element;
+import com.example.garage.model.enumm.TypePiece;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,8 +20,10 @@ public class HistoriqueEvenementReqDTO {
 
     private Integer idHistorique;
 
+    private TypePiece type;
 
-    private CommandeGarage action;
+    private Commande action;
+    private Element element;
 
     @UpdateTimestamp
     private LocalDateTime dateAction;
@@ -37,11 +38,27 @@ public class HistoriqueEvenementReqDTO {
         this.idHistorique = idHistorique;
     }
 
-    public CommandeGarage getAction() {
+    public Element getElement() {
+        return element;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
+
+    public TypePiece getType() {
+        return type;
+    }
+
+    public void setType(TypePiece type) {
+        this.type = type;
+    }
+
+    public Commande getAction() {
         return action;
     }
 
-    public void setAction(CommandeGarage action) {
+    public void setAction(Commande action) {
         this.action = action;
     }
 

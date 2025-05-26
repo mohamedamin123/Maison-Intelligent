@@ -55,6 +55,13 @@ public class HistoriqueEvenementServiceImpl implements HistoriqueEvenementServic
     }
 
     @Override
+    public List<HistoriqueEvenementResDTO> findAllByIdUser(Integer id) {
+        List<HistoriqueEvenement> users = this.repository.findAllByIdUserOrderByDateActionDesc(id);
+        return mapper.toAllResDTO(users);
+    }
+
+
+    @Override
     public Optional<HistoriqueEvenementResDTO> findById(Integer id) {
         Optional<HistoriqueEvenement> optional = this.repository.findById(id);
         if (optional.isPresent()) {

@@ -12,26 +12,50 @@ import lombok.NoArgsConstructor;
 @Data
 public class VehiculeResDTO {
 
+    private Integer idVehicule;
 
 
-    private EtatGarage matricule;
+    private String matricule;
 
     private String marque;
 
     private String modele;
     private Integer idGarage;
+    private boolean estDansGarage;
+    private Integer idUser;
 
-
-    public VehiculeResDTO(EtatGarage matricule) {
-        this.matricule = matricule;
+    public Integer getIdVehicule() {
+        return idVehicule;
     }
 
+    public void setIdVehicule(Integer idVehicule) {
+        this.idVehicule = idVehicule;
+    }
 
-    public EtatGarage getMatricule() {
+    public Integer getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(Integer idUser) {
+        this.idUser = idUser;
+    }
+
+    public VehiculeResDTO(String matricule) {
+        this.matricule = matricule;
+    }
+    public boolean isEstDansGarage() {
+        return estDansGarage;
+    }
+
+    public void setEstDansGarage(boolean estDansGarage) {
+        this.estDansGarage = estDansGarage;
+    }
+
+    public String getMatricule() {
         return matricule;
     }
 
-    public void setMatricule(EtatGarage matricule) {
+    public void setMatricule(String matricule) {
         this.matricule = matricule;
     }
 

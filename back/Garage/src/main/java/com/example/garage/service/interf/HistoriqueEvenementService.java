@@ -4,6 +4,7 @@ import com.example.garage.model.DTO.req.GarageReqDTO;
 import com.example.garage.model.DTO.req.HistoriqueEvenementReqDTO;
 import com.example.garage.model.DTO.res.GarageResDTO;
 import com.example.garage.model.DTO.res.HistoriqueEvenementResDTO;
+import com.example.garage.model.entity.HistoriqueEvenement;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public interface HistoriqueEvenementService {
 
     List<HistoriqueEvenementResDTO> findAll();
 
+    List<HistoriqueEvenementResDTO> findAllByIdUser(Integer id);
 
     Optional<HistoriqueEvenementResDTO> findById(Integer id) ;
 
