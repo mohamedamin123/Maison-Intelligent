@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SectionList } from 'react-native';
+import { View, Text, StyleSheet, SectionList,TextInput } from 'react-native';
 import { gethistoriqueEvenementByUserId } from '../../../services/HistoriqueEvenementService';
 import useAuthStore from '../../../store/useAuthStore';
 import { format, parseISO, isValid } from 'date-fns';
@@ -30,10 +30,10 @@ const getDateKey = (isoString) => {
 };
 
 // Groupe l'historique par date (au format ISO)
-const groupHistoryByDay = (history) => {
+const groupHistoryByDay = (historyList) => {
   const grouped = {};
 
-  history.forEach((entry) => {
+  historyList.forEach((entry) => {
     const dateKey = getDateKey(entry.dateAction);
     if (!grouped[dateKey]) grouped[dateKey] = [];
     grouped[dateKey].push(entry);
@@ -45,6 +45,8 @@ const groupHistoryByDay = (history) => {
   }));
 };
 
+
+
 const capitalizeFirstLetter = (str) => {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -54,13 +56,13 @@ const capitalizeFirstLetter = (str) => {
 const HistoriqueGarageScreen = () => {
   const [history, setHistory] = useState([]);
   const { user } = useAuthStore();
+  const [searchDate, setSearchDate] = useState('');
 
   useEffect(() => {
     const fetchHistorique = async () => {
       try {
         const response = await gethistoriqueEvenementByUserId(user.idUser);
         const historique = response.data;
-        console.log(historique)
         // Filtre les entrées avec une date valide et garde action + date brute
         const filtered = historique.filter(
           (e) => e.dateAction && isValid(parseISO(e.dateAction))
@@ -76,29 +78,42 @@ const HistoriqueGarageScreen = () => {
   }, [user.idUser]);
 
   // Groupe par date
-  const sections = groupHistoryByDay(history);
+const filteredHistory = history.filter((entry) =>
+  getDateKey(entry.dateAction).toLowerCase().includes(searchDate.toLowerCase())
+);
+
+const sections = groupHistoryByDay(filteredHistory);
 
   return (
-    <View style={styles.container}>
-      <SectionList
-        sections={sections}
-        keyExtractor={(item, index) => item.action + item.dateAction + index}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text style={styles.header}>{title}</Text>
-        )}
-        renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
-            <View style={styles.bullet} />
-            <Text style={styles.item}>
-             {capitalizeFirstLetter(item.element)} du garage a été {item.action === 'OUVRIR' ? 'ouvert 🔓' : 'fermé 🔒'} le {formatDate(item.dateAction)}.
-            </Text>
-          </View>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Aucune action enregistrée.</Text>
-        }
-      />
-    </View>
+<View style={styles.container}>
+  <TextInput
+    style={styles.searchInput}
+    placeholder="Rechercher par date (ex : lundi 27 mai)"
+    placeholderTextColor="#888"
+    value={searchDate}
+    onChangeText={setSearchDate}
+  />
+  
+  <SectionList
+    sections={sections}
+    keyExtractor={(item, index) => item.action + item.dateAction + index}
+    renderSectionHeader={({ section: { title } }) => (
+      <Text style={styles.header}>{title}</Text>
+    )}
+    renderItem={({ item }) => (
+      <View style={styles.itemContainer}>
+        <View style={styles.bullet} />
+        <Text style={styles.item}>
+          {capitalizeFirstLetter(item.element)} du garage a été {item.action === 'OUVRIR' ? 'ouvert 🔓' : 'fermé 🔒'} le {formatDate(item.dateAction)}.
+        </Text>
+      </View>
+    )}
+    ListEmptyComponent={
+      <Text style={styles.empty}>Aucune action enregistrée.</Text>
+    }
+  />
+</View>
+
   );
 };
 
@@ -141,6 +156,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
   },
+  searchInput: {
+  height: 40,
+  borderColor: '#00ADB5',
+  borderWidth: 1,
+  borderRadius: 8,
+  marginBottom: 20,
+  paddingHorizontal: 10,
+  color: '#E0E0E0',
+},
+
 });
 
 export default HistoriqueGarageScreen;

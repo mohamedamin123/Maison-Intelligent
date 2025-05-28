@@ -36,8 +36,7 @@ useEffect(() => {
     try {
       const response = await getGarage(idGarage);
       const garage = response.data;
-      console.log('ID du garage reçu :', idGarage);
-        console.log('garage :', garage);
+
 
 
       setGarageOpen(garage.etat);         // ← Champ à ajuster selon ton backend
