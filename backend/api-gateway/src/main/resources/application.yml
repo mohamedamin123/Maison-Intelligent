@@ -1,0 +1,67 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        # REST User Service
+        - id: user-service-users
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+          filters:
+            - AddRequestHeader=X-Route, user-service-users
+
+        - id: user-service-auth
+          uri: lb://user-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - AddRequestHeader=X-Route, user-service-auth
+
+        # REST Home Service
+        - id: home-service-homes
+          uri: lb://home-service
+          predicates:
+            - Path=/homes/**
+          filters:
+            - AddRequestHeader=X-Route, home-service-homes
+
+        - id: home-service-homes-members
+          uri: lb://home-service
+          predicates:
+            - Path=/homes_members/**
+          filters:
+            - AddRequestHeader=X-Route, home-service-homes-members
+
+        - id: home-service-garages
+          uri: lb://home-service
+          predicates:
+            - Path=/garages/**
+          filters:
+            - AddRequestHeader=X-Route, home-service-garages
+        # Thymeleaf pages proxy
+        - id: home-web
+          uri: http://localhost:9002
+          predicates:
+            - Path=/web/homes/**
+
+        - id: user-web
+          uri: http://localhost:9001
+          predicates:
+            - Path=/web/users/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

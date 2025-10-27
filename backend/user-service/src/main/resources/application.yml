@@ -1,0 +1,43 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: ${HOST_SENDER}
+    port: ${PORT_SENDER}
+    username: ${EMAIL_SENDER}
+    password: ${PASSWORD_SENDER}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+mapstruct:
+  defaultComponentModel: spring
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        security.web.authentication: DEBUG
+        cloud.gateway: DEBUG
