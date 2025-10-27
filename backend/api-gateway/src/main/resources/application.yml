@@ -44,6 +44,13 @@ spring:
             - Path=/garages/**
           filters:
             - AddRequestHeader=X-Route, home-service-garages
+
+        - id: history-service-history
+          uri: lb://history-service
+          predicates:
+            - Path=/history/**
+          filters:
+            - AddRequestHeader=X-Route, history-service-history
         # Thymeleaf pages proxy
         - id: home-web
           uri: http://localhost:9002

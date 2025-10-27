@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: history-service
+
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 9003

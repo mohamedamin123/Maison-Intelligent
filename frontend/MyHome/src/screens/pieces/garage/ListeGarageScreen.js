@@ -42,20 +42,23 @@ const ListeGarageScreen = () => {
     if (homeId) fetchGarages();
   }, [homeId]);
 
+  // 🔹 Correction de handleGaragePress pour envoyer homeId
   const handleGaragePress = (idRoom) => {
-    navigation.navigate('ConsulterGarage', { idGarage: idRoom });
+    navigation.navigate('ConsulterGarage', { idGarage: idRoom, homeId });
   };
 
+  // 🔹 Dans renderGarage, on ne change rien car homeId est déjà accessible depuis le scope
   const renderGarage = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => handleGaragePress(item.idRoom)}
+      onPress={() => handleGaragePress(item.idRoom)} // homeId est pris automatiquement depuis le scope
     >
       <Icon name="garage" size={32} color="#00ADB5" />
       <Text style={styles.cardText}>{item.nom}</Text>
       <Text style={styles.surfaceText}>{item.surface} m²</Text>
     </TouchableOpacity>
   );
+
 
   return (
     <View style={styles.container}>

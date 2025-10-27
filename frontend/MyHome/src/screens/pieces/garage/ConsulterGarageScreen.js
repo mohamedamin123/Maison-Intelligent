@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,32 +6,80 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import useAuthStore from '../../../store/useAuthStore';
+import { createHistoryEvent, getHistoryEventsByRoomId } from '../../../services/HistoryService';
 
 const screenWidth = Dimensions.get('window').width;
 
 const ConsulterGarageScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { idGarage } = route.params;
-  const { user } = useAuthStore();
+  const { idGarage } = route.params || {};
+  const { homeId } = route.params || {};
+
 
   const [garageOpen, setGarageOpen] = useState(false);
   const [lightOn, setLightOn] = useState(false);
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const addHistory = (message) => {
+  // 🔹 Charger état actuel du garage et lumière depuis le backend
+  useEffect(() => {
+    console.log('ConsulterGarageScreen - idGarage:', idGarage);
+    console.log('ConsulterGarageScreen - homeId:', homeId);
+    if (!idGarage) return;
+
+    const fetchHistory = async () => {
+      try {
+        const events = await getHistoryEventsByRoomId(idGarage);
+        setHistory(events);
+
+        // Dernier événement garage
+        const lastGarageEvent = events
+          .filter(e => e.action.toLowerCase().includes('port'))
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+        if (lastGarageEvent) setGarageOpen(lastGarageEvent.action.toLowerCase().includes('ouvert'));
+
+        // Dernier événement lumière
+        const lastLightEvent = events
+          .filter(e => e.action.toLowerCase().includes('lumière'))
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+        if (lastLightEvent) setLightOn(lastLightEvent.action.toLowerCase().includes('allumée'));
+      } catch (error) {
+        console.error('Erreur récupération historique:', error.response?.data || error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [idGarage]);
+
+  // 🔹 Ajouter un événement local + backend
+  const addHistory = async (message) => {
     const timestamp = new Date().toISOString();
-    setHistory((prev) => [`${message} à ${timestamp}`, ...prev]);
+    const newEntry = { action: message, createdAt: timestamp, homeId: homeId };
+    setHistory(prev => [newEntry, ...prev]);
+
+    try {
+      await createHistoryEvent({
+        roomId: idGarage,
+        roomName: 'Garage',
+        action: message,
+        homeId: homeId,
+      });
+    } catch (error) {
+      console.error('Erreur sauvegarde historique:', error.response?.data || error.message);
+    }
   };
 
   const toggleGarage = () => {
     const newState = !garageOpen;
     setGarageOpen(newState);
-    addHistory(`Garage ${newState ? 'ouvert' : 'fermé'}`);
+    addHistory(`Port ${newState ? 'ouvert' : 'fermé'}`);
   };
 
   const toggleLight = () => {
@@ -40,31 +88,44 @@ const ConsulterGarageScreen = () => {
     addHistory(`Lumière ${newState ? 'allumée' : 'éteinte'}`);
   };
 
+  if (!idGarage) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: '#fff', fontSize: 18 }}>ID Garage manquant !</Text>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#00ADB5" />
+        <Text style={{ color: '#fff', marginTop: 10 }}>Chargement de l'état du garage...</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>🚗 Contrôle du Garage</Text>
 
       <View style={styles.row}>
-        {/* Contrôle Garage */}
+        {/* Garage */}
         <View style={styles.card}>
           <Icon
             name={garageOpen ? 'garage-open' : 'garage'}
             size={64}
             color={garageOpen ? '#00ff88' : '#aaa'}
           />
-          <Text
-            style={[styles.statusText, { color: garageOpen ? '#00ff88' : '#aaa' }]}
-          >
-            {garageOpen ? 'Garage ouvert' : 'Garage fermé'}
+          <Text style={[styles.statusText, { color: garageOpen ? '#00ff88' : '#aaa' }]}>
+            {garageOpen ? 'Port ouvert' : 'Port fermé'}
           </Text>
           <TouchableOpacity style={styles.toggleButton} onPress={toggleGarage}>
-            <Text style={styles.toggleButtonText}>
-              {garageOpen ? 'Fermer' : 'Ouvrir'}
-            </Text>
+            <Text style={styles.toggleButtonText}>{garageOpen ? 'Fermer' : 'Ouvrir'}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Gestion Véhicule */}
+        {/* Véhicule */}
         <View style={styles.card}>
           <Icon name="car-multiple" size={64} color="#ffcb05" />
           <Text style={[styles.statusText, { color: '#ffcb05' }]}>Gérer Véhicule</Text>
@@ -106,19 +167,17 @@ const ConsulterGarageScreen = () => {
         </View>
       </View>
 
+      {/* Historique */}
       <TouchableOpacity
         style={[styles.toggleButton, { marginBottom: 20 }]}
-        onPress={() => navigation.navigate('HistoriqueGarage', { history })}
+        onPress={() => navigation.navigate('HistoriqueGarage', { homeId })}
       >
         <Text style={styles.toggleButtonText}>Voir l'historique complet</Text>
       </TouchableOpacity>
 
-      {/* Bouton Retour en bas */}
+      {/* Retour */}
       <View style={styles.bottomButtonContainer}>
-        <TouchableOpacity
-          style={styles.returnButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.returnButton} onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.returnButtonText}>Retour</Text>
         </TouchableOpacity>
