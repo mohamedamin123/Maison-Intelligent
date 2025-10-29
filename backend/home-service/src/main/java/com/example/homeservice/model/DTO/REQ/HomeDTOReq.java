@@ -1,5 +1,6 @@
 package com.example.homeservice.model.DTO.REQ;
 
+import com.example.homeservice.model.enumeration.TypeRoom;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,5 +29,6 @@ public class HomeDTOReq {
     @Pattern(regexp = "\\d{4,6}", message = "Le code postal doit contenir entre 4 et 6 chiffres.")
     private String codePostal;
 
+    private TypeRoom type;
 
 }

@@ -7,14 +7,17 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  Modal,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getGaragesByHomeId } from '../../../services/GarageService';
+import { getRoomsByTypeAndHomeId, deleteRoom } from '../../../services/RoomService';
 
 const screenWidth = Dimensions.get('window').width;
-const CARD_WIDTH = screenWidth - 40; // un garage par ligne
+const CARD_WIDTH = screenWidth - 40;
 const CARD_HEIGHT = 120;
+const ROOM="GARAGE"
 
 const ListeGarageScreen = () => {
   const navigation = useNavigation();
@@ -23,13 +26,13 @@ const ListeGarageScreen = () => {
   const [garages, setGarages] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedGarage, setSelectedGarage] = useState(null);
+
   useEffect(() => {
     const fetchGarages = async () => {
       try {
-        console.log('Chargement des garages pour la maison ID :', homeId);
-        const response = await getGaragesByHomeId(homeId);
-        console.log('Garages récupérés :', response);
-
+        const response = await getRoomsByTypeAndHomeId(ROOM, homeId);
         const garagesData = Array.isArray(response) ? response : [response];
         setGarages(garagesData);
       } catch (error) {
@@ -38,32 +41,71 @@ const ListeGarageScreen = () => {
         setLoading(false);
       }
     };
-
     if (homeId) fetchGarages();
   }, [homeId]);
 
-  // 🔹 Correction de handleGaragePress pour envoyer homeId + nomGarage
-  const handleGaragePress = (idRoom, nomGarage) => {
-    navigation.navigate('ConsulterGarage', { 
-      idGarage: idRoom, 
-      homeId, 
-      nomGarage // ➕ on envoie aussi le nom du garage
+  // 🔹 Gestion du clic sur un garage
+  const handleGaragePress = (garage) => {
+    setSelectedGarage(garage);
+    setModalVisible(true);
+  };
+
+  // 🔹 Actions Modal
+  const handleConsulter = () => {
+    setModalVisible(false);
+    navigation.navigate('ConsulterGarage', {
+      idGarage: selectedGarage.idRoom,
+      homeId,
+      nomGarage: selectedGarage.nom,
     });
   };
 
-  // 🔹 Dans renderGarage, on passe aussi le nom
+  const handleEdit = () => {
+    setModalVisible(false);
+    navigation.navigate('AjouterGarage', {
+      homeId,
+      garageToEdit: selectedGarage, // tu peux envoyer l'objet complet pour pré-remplir le formulaire
+    });
+  };
+  const handleSupprimer = () => {
+    Alert.alert(
+      'Confirmer la suppression',
+      `Voulez-vous vraiment supprimer le garage "${selectedGarage.nom}" ?`,
+      [
+        {
+          text: 'Non',
+          style: 'cancel',
+        },
+        {
+          text: 'Oui',
+          style: 'destructive',
+          onPress: async () => {
+            setModalVisible(false);
+            try {
+              await deleteRoom(selectedGarage.idRoom);
+              setGarages((prev) => prev.filter(g => g.idRoom !== selectedGarage.idRoom));
+            } catch (error) {
+              console.error('Erreur suppression garage :', error);
+              Alert.alert('Erreur', 'Impossible de supprimer le garage.');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+
   const renderGarage = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => handleGaragePress(item.idRoom, item.nom)} // ➕ ajout du nom
+      onPress={() => handleGaragePress(item)}
     >
       <Icon name="garage" size={32} color="#00ADB5" />
       <Text style={styles.cardText}>{item.nom}</Text>
       <Text style={styles.surfaceText}>{item.surface} m²</Text>
     </TouchableOpacity>
   );
-
-
 
   return (
     <View style={styles.container}>
@@ -79,17 +121,45 @@ const ListeGarageScreen = () => {
           data={garages}
           renderItem={renderGarage}
           keyExtractor={(item) => item.idRoom.toString()}
-          numColumns={1} // un garage par ligne
-          key={'single-column'} // 🔑 clé fixe pour forcer le rendu en 1 colonne
+          numColumns={1}
+          key={'single-column'}
           contentContainerStyle={[styles.list, { paddingBottom: 200 }]}
         />
-
       )}
 
-      {/* Conteneur des boutons en bas */}
+      {/* Modal avec 3 boutons */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{selectedGarage?.nom}</Text>
+            <Text style={styles.modalSubtitle}>{selectedGarage?.surface} m²</Text>
+
+            <TouchableOpacity style={styles.modalButton} onPress={handleConsulter}>
+              <Text style={styles.modalButtonText}>Consulter</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.modalButton} onPress={handleEdit}>
+              <Text style={styles.modalButtonText}>Éditer</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#FF4C4C' }]} onPress={handleSupprimer}>
+              <Text style={styles.modalButtonText}>Supprimer</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#555' }]} onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalButtonText}>Annuler</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Boutons Ajouter et Retour */}
       <View style={styles.bottomButtons}>
-
-
         <TouchableOpacity
           style={styles.bottomButton}
           onPress={() => navigation.navigate('AjouterGarage', { homeId })}
@@ -98,9 +168,9 @@ const ListeGarageScreen = () => {
           <Text style={styles.bottomButtonText}>Ajouter un garage</Text>
         </TouchableOpacity>
 
-                <TouchableOpacity
+        <TouchableOpacity
           style={[styles.bottomButton, { backgroundColor: '#555' }]}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate('Home')}
         >
           <Text style={styles.bottomButtonText}>⬅ Retour</Text>
         </TouchableOpacity>
@@ -181,6 +251,44 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   },
+   modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#1e1e1e',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#00ADB5',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    color: '#aaa',
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  modalButton: {
+    width: '100%',
+    backgroundColor: '#00ADB5',
+    paddingVertical: 12,
+    borderRadius: 25,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
 });
 
 export default ListeGarageScreen;

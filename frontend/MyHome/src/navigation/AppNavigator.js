@@ -14,6 +14,8 @@ import HistoriqueGarageScreen from '../screens/pieces/garage/HistoriqueGarageScr
 import CameraGarageExterneScreen from '../screens/pieces/garage/CameraGarageExterneScreen';
 import CameraGarageInterneScreen from '../screens/pieces/garage/CameraGarageInterneScreen';
 import DonneesGarageScreen from '../screens/pieces/garage/DonneesGarageScreen';
+import ListeChambreScreen from '../screens/pieces/chambre/ListeChambreScreen';
+import AjouterChambreScreen from '../screens/pieces/chambre/AjouterChambreScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -39,10 +41,11 @@ export default function AppNavigator() {
       <Stack.Screen name="CameraGarageInterne" component={CameraGarageInterneScreen} />
       <Stack.Screen name="DonneesGarage" component={DonneesGarageScreen} />
 
+      {/* Chambres Screens */}
+      <Stack.Screen name="ListeChambre" component={ListeChambreScreen} />
+      <Stack.Screen name="AjouterChambre" component={AjouterChambreScreen} />
 
 
-
-      
     </Stack.Navigator>
   );
 }

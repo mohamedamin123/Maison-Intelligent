@@ -14,7 +14,7 @@ const rooms = [
   { name: 'Salle de bain', icon: 'shower-head' },
   { name: 'Jardin', icon: 'flower' },
   { name: 'Garage', icon: 'garage' },
-  { name: 'Vehicule', icon: 'car' },
+  { name: 'Cave', icon: 'warehouse' },
 ];
 
 const ConsulterHomeScreen = () => {
@@ -25,9 +25,9 @@ const ConsulterHomeScreen = () => {
   const handleRoomPress = (roomName) => {
     if (roomName === 'Garage') {
       navigation.navigate('ListeGarage', { homeId }); // ✅ on passe l’idHome
-    } else if (roomName === 'Vehicule') {
-      navigation.navigate('ListeVehicule', { homeId }); // même logique
-    } 
+    } else if (roomName === 'Chambre') {
+      navigation.navigate('ListeChambre', { homeId }); // ✅ on passe l’idHome
+    }
   };
 
   return (
@@ -48,12 +48,7 @@ const ConsulterHomeScreen = () => {
         ))}
       </View>
 
-      <TouchableOpacity
-        style={styles.mainButton}
-        onPress={() => navigation.navigate('Dashboard')}
-      >
-        <Text style={styles.mainButtonText}>Accéder au tableau de bord</Text>
-      </TouchableOpacity>
+
     </ScrollView>
   );
 };
@@ -62,7 +57,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121212' },
   content: { padding: 20, paddingBottom: 80 },
   title: {
-    fontSize: 28, color: '#00ADB5', fontWeight: 'bold', textAlign: 'center', marginBottom: 8,
+    fontSize: 28, color: '#00ADB5', fontWeight: 'bold', textAlign: 'center', marginVertical: 20,
   },
   subtitle: {
     fontSize: 16, color: '#ccc', textAlign: 'center', marginBottom: 20,

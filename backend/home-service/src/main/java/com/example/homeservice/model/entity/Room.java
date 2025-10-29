@@ -10,15 +10,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class Room {
+public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idRoom;
+
+    private String nom;
+    private float surface;
 
     @Enumerated(EnumType.STRING)
     private TypeRoom type; // Exemple : GARAGE, CHAMBRE, SALON, etc.

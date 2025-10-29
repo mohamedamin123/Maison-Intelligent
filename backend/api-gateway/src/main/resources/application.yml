@@ -38,12 +38,12 @@ spring:
           filters:
             - AddRequestHeader=X-Route, home-service-homes-members
 
-        - id: home-service-garages
+        - id: home-service-rooms
           uri: lb://home-service
           predicates:
-            - Path=/garages/**
+            - Path=/rooms/**
           filters:
-            - AddRequestHeader=X-Route, home-service-garages
+            - AddRequestHeader=X-Route, home-service-rooms
 
         - id: history-service-history
           uri: lb://history-service
