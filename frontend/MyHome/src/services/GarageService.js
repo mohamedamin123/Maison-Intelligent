@@ -84,4 +84,14 @@ export const getGaragesByHomeId = async (idHome) => {
   }
 };
 
+export const getGaragesByHomeIdAndRoomId = async (idHome, idRoom) => {
+  try {
+    const response = await api.get(`home/${idHome}/room/${idRoom}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur getGaragesByHomeIdAndRoomId:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
 export default api;

@@ -73,6 +73,13 @@ public class GarageServiceImpl implements GarageService {
     }
 
     @Override
+    public List<GarageResDTO> findAllByIdRoomAndHome_IdHome(Integer idRoom, Integer homeId) {
+        List<Garage> garages = garageRepository.findAllByIdRoomAndHome_IdHome(idRoom,homeId);
+        return garages.stream()
+                .map(garageMapper::toResDTO)
+                .collect(Collectors.toList());    }
+
+    @Override
     public void deleteGarage(Integer id) {
         Garage garage = garageRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Garage non trouvé"));

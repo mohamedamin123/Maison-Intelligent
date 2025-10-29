@@ -10,6 +10,7 @@ import com.example.historyservice.service.interf.HistoryEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,5 +49,28 @@ public class HistoryEventServiceImpl implements HistoryEventService {
         return repository.findByHomeId(homeId)
                 .stream()
                 .map(mapper::toDto)
-                .collect(Collectors.toList());    }
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HistoryEventResDTO> findByHomeIdAndCreatedAt(Integer homeId, LocalDateTime localDateTime) {
+        LocalDateTime startOfDay = localDateTime.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = localDateTime.toLocalDate().atTime(23, 59, 59, 999_999_999);
+        return repository.findByHomeIdAndCreatedAtBetween(homeId, startOfDay, endOfDay)
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HistoryEventResDTO> findByHomeIdAndRoomIdAndCreatedAtBetween(Integer roomId, Integer homeId, LocalDateTime localDateTime) {
+        LocalDateTime startOfDay = localDateTime.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = localDateTime.toLocalDate().atTime(23, 59, 59, 999_999_999);
+        return repository.findByHomeIdAndRoomIdAndCreatedAtBetweenOrderByCreatedAtDesc(homeId,roomId, startOfDay, endOfDay)
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+
 }

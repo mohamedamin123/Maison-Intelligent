@@ -13,16 +13,7 @@ const HomeParentScreen = () => {
       Alert.alert("Erreur", "Aucune maison associée trouvée !");
       return;
     }
-    // Passer idHome au screen ConsulterHome
     navigation.navigate("ConsulterHome", { homeId: user.idHome });
-  };
-
-  const handleFeature = (screenName) => {
-    if (!user?.idHome) {
-      Alert.alert("Erreur", "Aucune maison associée trouvée !");
-      return;
-    }
-    navigation.navigate(screenName, { homeId: user.idHome });
   };
 
   return (
@@ -30,32 +21,25 @@ const HomeParentScreen = () => {
       <Text style={styles.title}>🏡 Maison Intelligente</Text>
       <Text style={styles.subtitle}>Gérez votre maison en un seul clic</Text>
 
+      {/* 🔹 Section d’aperçu des fonctionnalités */}
       <View style={styles.section}>
-        <TouchableOpacity 
-          style={styles.card} 
-          onPress={() => handleFeature("LightsScreen")}
-        >
+        <View style={styles.card}>
           <Icon name="lightbulb-on-outline" size={40} color="#00ADB5" />
           <Text style={styles.cardText}>Lumières</Text>
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity 
-          style={styles.card} 
-          onPress={() => handleFeature("TemperatureScreen")}
-        >
+        <View style={styles.card}>
           <Icon name="thermometer" size={40} color="#00ADB5" />
           <Text style={styles.cardText}>Température</Text>
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity 
-          style={styles.card} 
-          onPress={() => handleFeature("SecurityScreen")}
-        >
+        <View style={styles.card}>
           <Icon name="shield-home-outline" size={40} color="#00ADB5" />
           <Text style={styles.cardText}>Sécurité</Text>
-        </TouchableOpacity>
+        </View>
       </View>
 
+      {/* 🔹 Bouton principal */}
       <TouchableOpacity style={styles.mainButton} onPress={handleConsult}>
         <Text style={styles.mainButtonText}>Voir toutes les fonctionnalités</Text>
       </TouchableOpacity>

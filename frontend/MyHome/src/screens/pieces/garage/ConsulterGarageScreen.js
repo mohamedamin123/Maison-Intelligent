@@ -17,19 +17,15 @@ const screenWidth = Dimensions.get('window').width;
 const ConsulterGarageScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { idGarage } = route.params || {};
-  const { homeId } = route.params || {};
-
+  const { idGarage, homeId, nomGarage } = route.params || {};
+  
 
   const [garageOpen, setGarageOpen] = useState(false);
   const [lightOn, setLightOn] = useState(false);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Charger état actuel du garage et lumière depuis le backend
   useEffect(() => {
-    console.log('ConsulterGarageScreen - idGarage:', idGarage);
-    console.log('ConsulterGarageScreen - homeId:', homeId);
     if (!idGarage) return;
 
     const fetchHistory = async () => {
@@ -37,13 +33,11 @@ const ConsulterGarageScreen = () => {
         const events = await getHistoryEventsByRoomId(idGarage);
         setHistory(events);
 
-        // Dernier événement garage
         const lastGarageEvent = events
           .filter(e => e.action.toLowerCase().includes('port'))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
         if (lastGarageEvent) setGarageOpen(lastGarageEvent.action.toLowerCase().includes('ouvert'));
 
-        // Dernier événement lumière
         const lastLightEvent = events
           .filter(e => e.action.toLowerCase().includes('lumière'))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
@@ -58,7 +52,6 @@ const ConsulterGarageScreen = () => {
     fetchHistory();
   }, [idGarage]);
 
-  // 🔹 Ajouter un événement local + backend
   const addHistory = async (message) => {
     const timestamp = new Date().toISOString();
     const newEntry = { action: message, createdAt: timestamp, homeId: homeId };
@@ -107,7 +100,7 @@ const ConsulterGarageScreen = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>🚗 Contrôle du Garage</Text>
+      <Text style={styles.title}>🚗Contrôle du {nomGarage ? nomGarage : 'Garage'}</Text>
 
       <View style={styles.row}>
         {/* Garage */}
@@ -122,32 +115,6 @@ const ConsulterGarageScreen = () => {
           </Text>
           <TouchableOpacity style={styles.toggleButton} onPress={toggleGarage}>
             <Text style={styles.toggleButtonText}>{garageOpen ? 'Fermer' : 'Ouvrir'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Véhicule */}
-        <View style={styles.card}>
-          <Icon name="car-multiple" size={64} color="#ffcb05" />
-          <Text style={[styles.statusText, { color: '#ffcb05' }]}>Gérer Véhicule</Text>
-          <TouchableOpacity
-            style={styles.toggleButton}
-            onPress={() => navigation.navigate('GererVehicule', { idGarage })}
-          >
-            <Text style={styles.toggleButtonText}>Aller à la gestion</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={[styles.row, { marginBottom: 30 }]}>
-        {/* Caméra */}
-        <View style={styles.card}>
-          <Icon name="cctv" size={64} color="#00ADB5" />
-          <Text style={[styles.statusText, { color: '#00ADB5' }]}>Visualisation</Text>
-          <TouchableOpacity
-            style={styles.toggleButton}
-            onPress={() => navigation.navigate('CameraGarage')}
-          >
-            <Text style={styles.toggleButtonText}>Visualiser données</Text>
           </TouchableOpacity>
         </View>
 
@@ -167,21 +134,67 @@ const ConsulterGarageScreen = () => {
         </View>
       </View>
 
-      {/* Historique */}
-      <TouchableOpacity
-        style={[styles.toggleButton, { marginBottom: 20 }]}
-        onPress={() => navigation.navigate('HistoriqueGarage', { homeId })}
-      >
-        <Text style={styles.toggleButtonText}>Voir l'historique complet</Text>
-      </TouchableOpacity>
+      {/* 🔹 Caméras : Interne + Externe */}
+      <View style={[styles.row, { marginBottom: 30 }]}>
+        {/* Caméra interne */}
+        <View style={styles.card}>
+          <Icon name="cctv" size={64} color="#00ADB5" />
+          <Text style={[styles.statusText, { color: '#00ADB5' }]}>Caméra interne</Text>
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={() => navigation.navigate('CameraGarageInterne', { idGarage })}
+          >
+            <Text style={styles.toggleButtonText}>Visualiser</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Retour */}
-      <View style={styles.bottomButtonContainer}>
-        <TouchableOpacity style={styles.returnButton} onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.returnButtonText}>Retour</Text>
-        </TouchableOpacity>
+        {/* Caméra externe */}
+        <View style={styles.card}>
+          <Icon name="video-wireless-outline" size={64} color="#00ADB5" />
+          <Text style={[styles.statusText, { color: '#00ADB5' }]}>Caméra externe</Text>
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={() => navigation.navigate('CameraGarageExterne', { idGarage, homeId, nomGarage })}
+          >
+            <Text style={styles.toggleButtonText}>Visualiser</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+    {/* Historique */}
+    <TouchableOpacity
+      style={[styles.toggleButton, { marginBottom: 16 }]}
+      onPress={() => navigation.navigate('HistoriqueGarage', { homeId, idGarage, nomGarage })}
+    >
+      <Text style={styles.toggleButtonText}>Voir l'historique complet</Text>
+    </TouchableOpacity>
+
+    {/* 🔹 Nouveau bouton pour les données/statistiques */}
+<TouchableOpacity
+  style={[styles.toggleButton, { marginBottom: 20 }]}
+  onPress={() =>
+    navigation.navigate('DonneesGarage', {
+      idGarage,
+      homeId,
+      nomGarage,
+      garageOpen, // 🔹 envoi état du port
+      lightOn,    // 🔹 envoi état lumière
+    })
+  }
+>
+  <Text style={styles.toggleButtonText}>Voir les données du garage</Text>
+</TouchableOpacity>
+
+
+
+    {/* Retour */}
+    <View style={styles.bottomButtonContainer}>
+      <TouchableOpacity style={styles.returnButton} onPress={() => navigation.goBack()}>
+        <Icon name="arrow-left" size={24} color="#fff" style={{ marginRight: 8 }} />
+        <Text style={styles.returnButtonText}>Retour</Text>
+      </TouchableOpacity>
+    </View>
+
     </ScrollView>
   );
 };

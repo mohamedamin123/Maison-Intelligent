@@ -43,6 +43,12 @@ public class GarageController {
         return ResponseEntity.ok(garages);
     }
 
+    @GetMapping("/home/{homeId}/room/{roomId}")
+    public ResponseEntity<List<GarageResDTO>> getGaragesByHome(@PathVariable Integer roomId,@PathVariable Integer homeId) {
+        List<GarageResDTO> garages = garageService.findAllByIdRoomAndHome_IdHome(roomId,homeId);
+        return ResponseEntity.ok(garages);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGarage(@PathVariable Integer id) {
         garageService.deleteGarage(id);

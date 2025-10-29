@@ -72,4 +72,29 @@ export const getHistoryEventsByHomeId = async (homeId) => {
   }
 };
 
+// 📅 🏠 Récupérer les historiques par homeId + date
+export const getHistoryEventsByHomeIdAndDate = async (homeId, localDateTime) => {
+  try {
+    const response = await api.get(`/home/${homeId}/date`, {
+      params: { date: localDateTime }, // format ISO attendu par @DateTimeFormat(iso = ISO.DATE_TIME)
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erreur getHistoryEventsByHomeIdAndDate:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// 📅 🏠 Récupérer les historiques par homeId+roomId + date
+export const getHistoryEventsByHomeIdAndRoomIdAndDate = async (homeId, roomId, localDateTime) => {
+  try {
+    const response = await api.get(`/home/${homeId}/room/${roomId}/date`, {
+      params: { date: localDateTime }, // format ISO attendu par @DateTimeFormat(iso = ISO.DATE_TIME)
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erreur getHistoryEventsByHomeIdAndRoomIdAndDate:', error.response?.data || error.message);
+    throw error;
+  }
+};
 export default api;

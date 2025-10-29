@@ -6,9 +6,11 @@ import com.example.historyservice.model.DTO.RES.HistoryEventResDTO;
 import com.example.historyservice.service.interf.HistoryEventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -44,4 +46,26 @@ public class HistoryEventController {
         List<HistoryEventResDTO> events = service.findByHomeId(homeId);
         return ResponseEntity.ok(events);
     }
+
+    @GetMapping("/home/{homeId}/date")
+    public ResponseEntity<List<HistoryEventResDTO>> findByHomeIdAndDate(
+            @PathVariable Integer homeId,
+            @RequestParam("date")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime localDateTime) {
+
+        List<HistoryEventResDTO> events = service.findByHomeIdAndCreatedAt(homeId, localDateTime);
+        return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/home/{homeId}/room/{roomId}/date")
+    public ResponseEntity<List<HistoryEventResDTO>> findByHomeIdAndRoomIdAndCreatedAtBetween(
+            @PathVariable Integer homeId,
+            @PathVariable Integer roomId,
+            @RequestParam("date")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime localDateTime) {
+
+        List<HistoryEventResDTO> events = service.findByHomeIdAndRoomIdAndCreatedAtBetween(roomId,homeId, localDateTime);
+        return ResponseEntity.ok(events);
+    }
+
 }

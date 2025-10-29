@@ -11,4 +11,5 @@ public interface GarageRepository extends JpaRepository<Garage, Integer> {
 
     // Liste des garages par maison
     List<Garage> findAllByHome_IdHome(Integer homeId);
+    List<Garage> findAllByIdRoomAndHome_IdHome(Integer idRoom, Integer homeId);
 }
